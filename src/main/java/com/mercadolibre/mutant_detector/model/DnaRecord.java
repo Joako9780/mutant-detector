@@ -24,4 +24,9 @@ public class DnaRecord implements Serializable {
         this.dna = dna;
         this.isMutant = isMutant;
     }
+
+    // --- METODO AGREGADO MANUALMENTE PARA CORREGIR ERROR DE LOMBOK ---
+    public boolean isMutant() {
+        return this.isMutant;
+    }
 }

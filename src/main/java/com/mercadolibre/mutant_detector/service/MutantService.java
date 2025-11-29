@@ -1,22 +1,41 @@
 package com.mercadolibre.mutant_detector.service;
 
 import com.mercadolibre.mutant_detector.detector.MutantDetector;
+import com.mercadolibre.mutant_detector.model.DnaRecord;
+import com.mercadolibre.mutant_detector.repository.DnaRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class MutantService {
 
     private final MutantDetector mutantDetector;
+    private final DnaRepository dnaRepository;
 
     // Inyección de dependencias por constructor
-    public MutantService(MutantDetector mutantDetector) {
+    public MutantService(MutantDetector mutantDetector, DnaRepository dnaRepository) {
         this.mutantDetector = mutantDetector;
+        this.dnaRepository = dnaRepository;
     }
 
     public boolean analyze(String[] dna) {
-        // TODO:
-        // Validar y detectar.
-        // En el Nivel 3, acá se agerga la lógica para guardar el resultado en BD.
-        return mutantDetector.isMutant(dna);
+        // 1. Array a String para la base de datos
+        String dnaString = String.join(",", dna);
+
+        // 2. Verificación de si ya existe en BD
+        Optional<DnaRecord> existingRecord = dnaRepository.findByDna(dnaString);
+        if (existingRecord.isPresent()) {
+            return existingRecord.get().isMutant();
+        }
+
+        // 3. Si no existe, calculamos
+        boolean isMutant = mutantDetector.isMutant(dna);
+
+        // 4. Guardar resultado
+        DnaRecord newRecord = new DnaRecord(dnaString, isMutant);
+        dnaRepository.save(newRecord);
+
+        return isMutant;
     }
 }
