@@ -14,7 +14,6 @@ public class MutantService {
     private final MutantDetector mutantDetector;
     private final DnaRepository dnaRepository;
 
-    // Inyección de dependencias por constructor
     public MutantService(MutantDetector mutantDetector, DnaRepository dnaRepository) {
         this.mutantDetector = mutantDetector;
         this.dnaRepository = dnaRepository;
