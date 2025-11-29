@@ -4,6 +4,7 @@ import com.mercadolibre.mutant_detector.detector.MutantDetector;
 import com.mercadolibre.mutant_detector.model.DnaRecord;
 import com.mercadolibre.mutant_detector.repository.DnaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ public class MutantService {
         this.dnaRepository = dnaRepository;
     }
 
+    @Transactional
     public boolean analyze(String[] dna) {
         // 1. Array a String para la base de datos
         String dnaString = String.join(",", dna);

@@ -1,5 +1,7 @@
 package com.mercadolibre.mutant_detector;
 
+import com.mercadolibre.mutant_detector.repository.DnaRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -7,15 +9,28 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest     //levanta el contexto completo de la aplicación
+@SpringBootTest
 @AutoConfigureMockMvc
 class MutantControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    // Inyección del repo para limpiar la base de datos
+    @Autowired
+    private DnaRepository dnaRepository;
+
+    @BeforeEach
+    void setUp() {
+        // Limpiar la base de datos antes de cada test
+        dnaRepository.deleteAll();
+    }
 
     @Test
     void testDetectMutant_Returns200() throws Exception {
@@ -63,8 +78,7 @@ class MutantControllerIntegrationTest {
 
     @Test
     void testInvalidDna_Returns400() throws Exception {
-        // Caso Inválido (Array vacío o caracteres extraños)
-        // Esto prueba que el 'try-catch' del Controller funciona
+        // Caso Inválido (Array vacío)
         String invalidJson = """
             {
                 "dna": []
@@ -97,5 +111,35 @@ class MutantControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidCharJson))
                 .andExpect(status().isBadRequest());
+    }
+
+    // test para estadísticas
+    @Test
+    void testGetStats_ReturnsCorrectJson() throws Exception {
+        // 1. Insertamos un MUTANTE
+        String mutantJson = """
+            { "dna": ["AAAA", "CCCC", "TCAG", "GGTC"] }
+            """;
+
+        mockMvc.perform(post("/mutant/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mutantJson))
+                .andExpect(status().isOk());
+
+        // 2. Insertamos un HUMANO
+        String humanJson = """
+            { "dna": ["AAAT", "CAGT", "TTAT", "AGAC"] }
+            """;
+        mockMvc.perform(post("/mutant/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(humanJson))
+                .andExpect(status().isForbidden());
+
+        // 3. Consultamos STATS
+        mockMvc.perform(get("/stats"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count_mutant_dna", is(1)))
+                .andExpect(jsonPath("$.count_human_dna", is(1)))
+                .andExpect(jsonPath("$.ratio", is(1.0)));
     }
 }
