@@ -5,6 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Entity
+@Table(name = "dna_records")
 @Data
 public class DnaRecord implements Serializable {
 
