@@ -6,11 +6,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(NoResourceFoundException ex) {
+        // Devolvemos 404 (Not Found) en lugar de 500
+        // Esto permite que el navegador entienda que simplemente no encontró el archivo
+        ErrorResponse error = new ErrorResponse(
+                "Not Found",
+                "El recurso solicitado no existe.",
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 
     // Maneja errores de validación
     @ExceptionHandler(MethodArgumentNotValidException.class)
