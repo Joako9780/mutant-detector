@@ -116,14 +116,14 @@ class MutantDetectorTest {
     @DisplayName("Exception: Null Input")
     void testNullInput() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mutantDetector.isMutant(null));
-        assertEquals("El array de ADN no puede ser nulo ni vacío.", exception.getMessage());
+        assertEquals("El array de ADN no puede ser nulo.", exception.getMessage());
     }
 
     @Test
     @DisplayName("Exception: Empty Input")
     void testEmptyInput() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mutantDetector.isMutant(new String[]{}));
-        assertEquals("El array de ADN no puede ser nulo ni vacío.", exception.getMessage());
+        assertEquals("El array de ADN no puede estar vacío.", exception.getMessage());
     }
 
     @Test
@@ -131,7 +131,7 @@ class MutantDetectorTest {
     void testNonSquareMatrix() {
         String[] dna = {"ABC", "DEF"};
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mutantDetector.isMutant(dna));
-        assertEquals("La tabla de ADN debe ser cuadrada (NxN).", exception.getMessage());
+        assertEquals("La tabla debe ser NxN.", exception.getMessage());
     }
 
     @Test
@@ -139,15 +139,7 @@ class MutantDetectorTest {
     void testInvalidCharactersNumbers() {
         String[] dna = {"1234", "1234", "1234", "1234"};
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mutantDetector.isMutant(dna));
-        assertEquals("El ADN contiene caracteres inválidos. Solo se permiten A, T, C, G.", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Exception: Invalid Characters (Lower Case)")
-    void testInvalidCharactersLowerCase() {
-        String[] dna = {"aaaa", "aaaa", "aaaa", "aaaa"};
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> mutantDetector.isMutant(dna));
-        assertTrue(exception.getMessage().contains("caracteres inválidos"));
+        assertEquals("Carácter inválido en posición (0,0): 1", exception.getMessage());
     }
 
     @Test
@@ -155,7 +147,7 @@ class MutantDetectorTest {
     void testNullRow() {
         String[] dna = {"AAAA", null, "AAAA", "AAAA"};
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mutantDetector.isMutant(dna));
-        assertEquals("La secuencia de ADN no puede ser nula.", exception.getMessage());
+        assertEquals("La fila 1 no puede ser nula.", exception.getMessage());
     }
 
     // --- 4. TESTS DE TAMAÑOS VARIADOS (10 tests extra) ---

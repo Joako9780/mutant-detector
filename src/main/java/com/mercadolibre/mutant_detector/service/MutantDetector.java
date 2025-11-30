@@ -1,71 +1,83 @@
 package com.mercadolibre.mutant_detector.service;
 
 import org.springframework.stereotype.Component;
-import java.util.regex.Pattern;
 
 @Component
 public class MutantDetector {
 
-    // Expresión regular para validar que solo contenga A, T, C, G
-    private static final Pattern VALID_DNA_PATTERN = Pattern.compile("[ATCG]+");
     private static final int SEQUENCE_LENGTH = 4;
-    private static final int MUTANT_THRESHOLD = 1; // Más de 1 secuencia
+    private static final int MUTANT_THRESHOLD = 1;
 
     public boolean isMutant(String[] dna) {
-        validateInput(dna);
+        // 1. Validaciones básicas rápidas
+        if (dna == null) throw new IllegalArgumentException("El array de ADN no puede ser nulo.");
+        if (dna.length == 0) throw new IllegalArgumentException("El array de ADN no puede estar vacío.");
 
         int n = dna.length;
         char[][] matrix = new char[n][n];
 
-        // Convertimos a matriz de caracteres para acceso rápido
+        // 2. Conversión y Validación de Caracteres en UN SOLO paso (Optimización de Iteración)
+        // Eliminamos el Regex costoso y usamos comparación directa de caracteres.
         for (int i = 0; i < n; i++) {
-            matrix[i] = dna[i].toCharArray();
+            String row = dna[i];
+            if (row == null) throw new IllegalArgumentException("La fila " + i + " no puede ser nula.");
+            if (row.length() != n) throw new IllegalArgumentException("La tabla debe ser NxN.");
+
+            for (int j = 0; j < n; j++) {
+                char c = row.charAt(j);
+                if (!isValidBase(c)) {
+                    throw new IllegalArgumentException("Carácter inválido en posición (" + i + "," + j + "): " + c);
+                }
+                matrix[i][j] = c;
+            }
         }
 
         int sequenceCount = 0;
 
+        // 3. Búsqueda Optimizada (Single Pass)
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
 
-                // Optimización: Si ya encontramos suficientes secuencias, cortamos temprano.
-                if (sequenceCount > MUTANT_THRESHOLD) {
-                    return true;
-                }
+                // Early Termination: Si ya es mutante, cortar inmediatamente.
+                if (sequenceCount > MUTANT_THRESHOLD) return true;
 
-                // 1. Horizontal: Verificamos solo si no es continuación de la anterior
+                char base = matrix[i][j];
+
+                // HORIZONTAL
+                // Solo chequeamos si cabe la secuencia Y si no es continuación de la anterior
                 if (j <= n - SEQUENCE_LENGTH) {
-                    if (j == 0 || matrix[i][j] != matrix[i][j - 1]) {
-                        if (checkSequence(matrix, i, j, 0, 1)) {
+                    if (j == 0 || base != matrix[i][j - 1]) {
+                        if (checkHorizontal(matrix, i, j)) {
                             sequenceCount++;
-                            continue; // Si encontramos una, pasamos al siguiente check para no solapar
+                            continue; // Si encontramos horizontal, saltamos para evitar solapamientos
                         }
                     }
                 }
 
-                // 2. Vertical: Verificamos solo si no es continuación de la superior
+                // VERTICAL
                 if (i <= n - SEQUENCE_LENGTH) {
-                    if (i == 0 || matrix[i][j] != matrix[i - 1][j]) {
-                        if (checkSequence(matrix, i, j, 1, 0)) {
+                    if (i == 0 || base != matrix[i - 1][j]) {
+                        if (checkVertical(matrix, i, j)) {
                             sequenceCount++;
                             continue;
                         }
                     }
                 }
 
-                // 3. Oblicua (Diagonal Principal): Verificamos si no es continuación
+                // DIAGONAL PRINCIPAL (\)
                 if (i <= n - SEQUENCE_LENGTH && j <= n - SEQUENCE_LENGTH) {
-                    if (i == 0 || j == 0 || matrix[i][j] != matrix[i - 1][j - 1]) {
-                        if (checkSequence(matrix, i, j, 1, 1)) {
+                    if (i == 0 || j == 0 || base != matrix[i - 1][j - 1]) {
+                        if (checkDiagonal(matrix, i, j)) {
                             sequenceCount++;
                             continue;
                         }
                     }
                 }
 
-                // 4. Oblicua Inversa (Diagonal Secundaria)
+                // DIAGONAL SECUNDARIA (/)
                 if (i <= n - SEQUENCE_LENGTH && j >= SEQUENCE_LENGTH - 1) {
-                    if (i == 0 || j == n - 1 || matrix[i][j] != matrix[i - 1][j + 1]) {
-                        if (checkSequence(matrix, i, j, 1, -1)) {
+                    if (i == 0 || j == n - 1 || base != matrix[i - 1][j + 1]) {
+                        if (checkAntiDiagonal(matrix, i, j)) {
                             sequenceCount++;
                         }
                     }
@@ -76,45 +88,38 @@ public class MutantDetector {
         return sequenceCount > MUTANT_THRESHOLD;
     }
 
-    /**
-     * Verifica si existe una secuencia de 4 caracteres iguales en una dirección dada.
-     * @param matrix La matriz de ADN
-     * @param row Fila inicial
-     * @param col Columna inicial
-     * @param dRow Delta fila (cambio en fila por paso)
-     * @param dCol Delta columna (cambio en columna por paso)
-     */
-    private boolean checkSequence(char[][] matrix, int row, int col, int dRow, int dCol) {
-        char startChar = matrix[row][col];
-        for (int k = 1; k < SEQUENCE_LENGTH; k++) {
-            if (matrix[row + k * dRow][col + k * dCol] != startChar) {
-                return false;
-            }
-        }
-        return true;
+    // Validación O(1) sin Regex
+    private boolean isValidBase(char c) {
+        return c == 'A' || c == 'T' || c == 'C' || c == 'G';
     }
 
-    private void validateInput(String[] dna) {
-        // Validación 1: No nulo ni vacío
-        if (dna == null || dna.length == 0) {
-            throw new IllegalArgumentException("El array de ADN no puede ser nulo ni vacío.");
-        }
+    // --- Optimizaciones de Comparación Directa (Loop Unrolling) ---
 
-        int n = dna.length;
+    private boolean checkHorizontal(char[][] matrix, int row, int col) {
+        char base = matrix[row][col];
+        return matrix[row][col + 1] == base &&
+                matrix[row][col + 2] == base &&
+                matrix[row][col + 3] == base;
+    }
 
-        for (String sequence : dna) {
-            // Validación 2: Filas no nulas
-            if (sequence == null) {
-                throw new IllegalArgumentException("La secuencia de ADN no puede ser nula.");
-            }
-            // Validación 3: Matriz Cuadrada (NxN)
-            if (sequence.length() != n) {
-                throw new IllegalArgumentException("La tabla de ADN debe ser cuadrada (NxN).");
-            }
-            // Validación 4: Caracteres permitidos
-            if (!VALID_DNA_PATTERN.matcher(sequence).matches()) {
-                throw new IllegalArgumentException("El ADN contiene caracteres inválidos. Solo se permiten A, T, C, G.");
-            }
-        }
+    private boolean checkVertical(char[][] matrix, int row, int col) {
+        char base = matrix[row][col];
+        return matrix[row + 1][col] == base &&
+                matrix[row + 2][col] == base &&
+                matrix[row + 3][col] == base;
+    }
+
+    private boolean checkDiagonal(char[][] matrix, int row, int col) {
+        char base = matrix[row][col];
+        return matrix[row + 1][col + 1] == base &&
+                matrix[row + 2][col + 2] == base &&
+                matrix[row + 3][col + 3] == base;
+    }
+
+    private boolean checkAntiDiagonal(char[][] matrix, int row, int col) {
+        char base = matrix[row][col];
+        return matrix[row + 1][col - 1] == base &&
+                matrix[row + 2][col - 2] == base &&
+                matrix[row + 3][col - 3] == base;
     }
 }
