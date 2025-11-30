@@ -9,9 +9,7 @@ import java.util.Optional;
 @Repository
 public interface DnaRepository extends JpaRepository<DnaRecord, Long> {
 
-    // Busca un registro por su secuencia de ADN
-    Optional<DnaRecord> findByDna(String dna);
+    Optional<DnaRecord> findByDnaHash(String dnaHash);
 
-    // Cuenta cuántos registros hay según si son mutantes o no
     long countByIsMutant(boolean isMutant);
 }

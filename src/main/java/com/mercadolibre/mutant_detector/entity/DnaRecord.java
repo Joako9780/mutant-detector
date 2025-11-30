@@ -13,18 +13,24 @@ public class DnaRecord implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, length = 100000)
+    // El ADN crudo (texto largo)
+    @Column(length = 100000)
     private String dna;
+
+    // El Hash SHA-256 (índice rápido y único)
+    @Column(unique = true, nullable = false)
+    private String dnaHash;
 
     private boolean isMutant;
 
-    // --- CONSTRUCTOR VACÍO (Requerido por Hibernate) ---
+    // --- Constructor Vacío (Obligatorio para Hibernate) ---
     public DnaRecord() {
     }
 
-    // Constructor con argumentos
-    public DnaRecord(String dna, boolean isMutant) {
+    // --- Constructor para usar en el Service ---
+    public DnaRecord(String dna, String dnaHash, boolean isMutant) {
         this.dna = dna;
+        this.dnaHash = dnaHash;
         this.isMutant = isMutant;
     }
 
