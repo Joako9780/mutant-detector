@@ -1,4 +1,4 @@
-package com.mercadolibre.mutant_detector;
+package com.mercadolibre.mutant_detector.controller;
 
 import com.mercadolibre.mutant_detector.repository.DnaRepository;
 import org.junit.jupiter.api.BeforeEach;
