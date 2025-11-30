@@ -116,3 +116,10 @@ Puedes acceder a la base de datos en memoria para inspeccionar los registros.
 2.  JDBC URL: jdbc:h2:mem:mutantdb
 3.  User Name: sa
 4.  Password: (dejar vacío)
+
+# Documentación (Swagger UI)
+El proyecto incluye documentación interactiva con Swagger UI. Para ver la definición de los endpoints y probarlos directamente desde el navegador:
+
+Inicia la aplicación.
+
+Ingresa a: http://localhost:8080/swagger-ui.html
