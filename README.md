@@ -117,9 +117,15 @@ Puedes acceder a la base de datos en memoria para inspeccionar los registros.
 3.  User Name: sa
 4.  Password: (dejar vacío)
 
-# Documentación (Swagger UI)
-El proyecto incluye documentación interactiva con Swagger UI. Para ver la definición de los endpoints y probarlos directamente desde el navegador:
+## Documentación (Swagger UI)
 
-Inicia la aplicación.
+El proyecto incluye documentación interactiva con **Swagger UI**.
+Puedes probar los endpoints directamente desde el navegador.
 
-Ingresa a: http://localhost:8080/swagger-ui.html
+### Local
+1.  Inicia la aplicación.
+2.  Ingresa a: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+### Producción (Render)
+Puedes probar la API desplegada online aquí:
+👉 **[Mutant Detector API - Live Demo](https://mutant-detector-7-t6qp.onrender.com/swagger-ui/index.html)**
