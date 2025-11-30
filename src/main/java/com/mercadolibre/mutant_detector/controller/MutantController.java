@@ -29,19 +29,15 @@ public class MutantController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Es Mutante"),
             @ApiResponse(responseCode = "403", description = "Es Humano (Forbidden)"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos (ADN nulo, vacío o caracteres erróneos)")
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
     })
     @PostMapping("/mutant/")
     public ResponseEntity<Void> detectMutant(@Valid @RequestBody DnaRequest request) {
-        try {
-            boolean isMutant = mutantService.analyze(request.dna());
-            if (isMutant) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+        boolean isMutant = mutantService.analyze(request.dna());
+        if (isMutant) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
