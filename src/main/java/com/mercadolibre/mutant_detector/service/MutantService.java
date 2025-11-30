@@ -1,7 +1,6 @@
 package com.mercadolibre.mutant_detector.service;
 
-import com.mercadolibre.mutant_detector.detector.MutantDetector;
-import com.mercadolibre.mutant_detector.model.DnaRecord;
+import com.mercadolibre.mutant_detector.entity.DnaRecord;
 import com.mercadolibre.mutant_detector.repository.DnaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

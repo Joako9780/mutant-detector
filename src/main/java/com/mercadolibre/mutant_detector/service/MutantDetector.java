@@ -1,4 +1,4 @@
-package com.mercadolibre.mutant_detector.detector;
+package com.mercadolibre.mutant_detector.service;
 
 import org.springframework.stereotype.Component;
 import java.util.regex.Pattern;

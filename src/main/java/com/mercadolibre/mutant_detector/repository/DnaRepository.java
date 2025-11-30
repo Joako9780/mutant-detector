@@ -1,6 +1,6 @@
 package com.mercadolibre.mutant_detector.repository;
 
-import com.mercadolibre.mutant_detector.model.DnaRecord;
+import com.mercadolibre.mutant_detector.entity.DnaRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

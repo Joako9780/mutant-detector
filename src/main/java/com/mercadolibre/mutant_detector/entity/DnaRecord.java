@@ -1,4 +1,4 @@
-package com.mercadolibre.mutant_detector.model;
+package com.mercadolibre.mutant_detector.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -12,7 +12,7 @@ public class DnaRecord implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 100000)
     private String dna;
 
     private boolean isMutant;

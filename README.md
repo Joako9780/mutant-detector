@@ -49,7 +49,10 @@ Envía una secuencia de ADN para su análisis.
     * 403 Forbidden: Es un Humano.
     * 400 Bad Request: Datos de entrada inválidos (Array vacío, caracteres erróneos, etc).
 
-**Ejemplo de prueba (Mutante):**
+#### Ejemplos de prueba para Importar a Postman
+
+###### **Ejemplo Mutante:**
+
 curl --location 'http://localhost:8080/mutant/' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -63,7 +66,8 @@ curl --location 'http://localhost:8080/mutant/' \
 ]
 }'
 
-**Ejemplo de prueba (Humano):**
+###### **Ejemplo Humano:**
+
 curl --location 'http://localhost:8080/mutant/' \
 --header 'Content-Type: application/json' \
 --data '{

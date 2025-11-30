@@ -1,6 +1,6 @@
 package com.mercadolibre.mutant_detector;
 
-import com.mercadolibre.mutant_detector.detector.MutantDetector;
+import com.mercadolibre.mutant_detector.service.MutantDetector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
